@@ -22,7 +22,6 @@ Firstly, we install and load all necessary packages
 # install.packages("osmdata")
 # install.packages("wesanderson") 
 
-
 # Load packages
 library(sf)
 library(tidyverse)
@@ -40,8 +39,12 @@ library(wesanderson)
 library(dplyr)
 ```
 
+Now we can read in our first data set - the South African Marine Protected Areas.
+I am checking the data set's CRS and looking at the first few rows of the 
+attribute table. 
+
 ```{r}
-# Read in the Marine Protected Areas dataset
+# Read in the Marine Protected Areas data set
 mpa <- st_read("C:\\Users\\Win10\\Documents\\GIT\\Gracilaria\\Gracilaria\\data\\SAMPAZ_OR_2024_Q3.shp")
  
 # Check the CRS
@@ -56,68 +59,94 @@ head (mpa)
 file.exists("C:\\Users\\Win10\\Documents\\GIT\\Gracilaria\\Gracilaria\\data\\SAMPAZ_OR_2024_Q3_duplicate.shp")
 ```
 
+Here, I generated some plots to get an overview of the MPA data, I reduced it to
+show only the column with MPA names and created an additional plot using tidyverse
+that creates a legend. However, now the map is squashed.
+
 ```{r}
 # Plot all (all columns, all of SA)
 plot(mpa)
+```
 
+Figure 1:...
+
+```{r}
 # Plot only column 2 from attribute table, all of SA
  plot(mpa[2])
+```
 
+Figure 2: ...
+
+```{r}
 # Plot using tidyverse
 ggplot() + geom_sf(data=mpa, aes(fill = `CUR_NME`))
 ```
 
+Figure 3: ...
 
-HIERVON EIN PAAR HÄSSLICHE PLOTS WEGLASSEN
+To avoid squashing the map, I crop it to the section I want to show. I set the 
+bounding box to show the Cape Peninsula, and extend west and north to include 
+Robben Island and east and south to include more of False Bay.
+
 ```{r}
- # Define bounding box for the Cape Peninsula
+ # Define bounding box size
 xmin <- 18.0   # Extend west to include Robben Island
 xmax <- 19.2   # Extend east to include parts of False Bay
 ymin <- -34.6  # Extend south to cover more of False Bay
 ymax <- -33.7  # Extend north to include Robben Island
+```
 
+I created a bounding box with the same CRS as my MPA data, cropped it to the 
+Cape Peninsula region and surrounding areas, and plotted this. 
+
+```{r}
 # Create a bounding box with the same CRS as the MPA data
 cape_bbox <- st_bbox(c(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax), crs = st_crs(mpa))
  
-# Crop the MPA data to the Cape Peninsula region
+# Crop the MPA data to the chosen region
 mpa_cape <- st_crop(mpa, cape_bbox)
 
 # Plot only cropped section of Cape Peninsula
-plot(st_geometry(mpa_cape), col = 'lightblue', main = "Marine Protected Areas - Cape Peninsula")
+plot(st_geometry(mpa_cape), col = 'lightblue', main = "Marine Protected Areas")
+```
 
-#EVTL WEGLASSEN WEIL LABELS SICH ÜBERSCHNEIDEN
-# Add MPA names as labels
-text(st_coordinates(st_centroid(mpa_cape)), labels = mpa_cape$CUR_NME, cex = 0.8, col = "black", pos = 4)
+Figure 4: ...
 
-# Use ggplot for better visualisation
-# Convert to data frame for ggplot2
-mpa_cape_df <- as.data.frame(st_coordinates(st_centroid(mpa_cape)))  # Get centroids
-mpa_cape_df$CUR_NME <- mpa_cape$CUR_NME  # Add names
-# Plot with ggplot2
-ggplot() +
-  geom_sf(data = mpa_cape, fill = "lightblue", color = "darkblue") +
-  geom_text(data = mpa_cape_df, aes(X, Y, label = CUR_NME), size = 3, color = "black") +
-  ggtitle("Marine Protected Areas - Cape Peninsula") +
-  theme_minimal()
+I created a plot using ggplot2 showing the four MPAs included in my cropped 
+section in different colours. For this to work, I first converted my MPA data
+to a data frame. 
 
-# Create a plot using ggplot2 with a legend 
-
+```{r}
 # Convert MPA data to a data frame for ggplot2
-mpa_cape$MPA_Name <- as.factor(mpa_cape$CUR_NME)  # Convert MPAs to factor values
+mpa_cape$MPA_NAME <- as.factor(mpa_cape$CUR_NME)  # Convert MPAs to factor values
 
-# Plot with ggplot2
+# Plot colour-coded MPAs
 ggplot() +
   geom_sf(data = mpa_cape, aes(fill = CUR_NME), color = "black") +  
   scale_fill_viridis_d(name = "MPA Name") +  
   ggtitle("Marine Protected Areas - Cape Peninsula") +
   theme_minimal() +
   theme(legend.position = "right")  
+```
 
+Figure 5: ...
+
+There are some adjacent polygons that belong to the same MPA. Below I edited 
+the plot to not show any unwanted boundaries. 
+
+```{r}
 # Remove boundaries within MPAs
 mpa_cape %>% group_by(CUR_NME) %>% 
   summarize() %>% 
-  ggplot() + geom_sf(aes(fill = CUR_NME))
+  ggplot() + geom_sf(aes(fill = CUR_NME)) +
+  scale_fill_discrete(name = "Marine Protected Areas") 
 ```
+
+Figure 6: ...
+
+Now it is time to add my species occurrence data from iNaturalist.
+I am using three species: the kelps *Ecklonia maxima* and *Laminaria pallida*,
+and the red algae *Gelidium pristoides*. I do this using the rinat() package.
 
 ```{r}
 # Call species occurrence data from iNaturalist
@@ -145,7 +174,13 @@ lp <- get_inat_obs(taxon_name = "Laminaria pallida",
 
 # View the first few rows of data
 head(lp)
+```
 
+I now merge the 3 datasets into a single data frame and filter the data so that
+it only shows research grade observations and records from the wild (not found
+in aquaculture farming systems). 
+
+```{r}
 # Merge the 3 datasets into a single data frame 
 algae_data <- rbind(gpr, em, lp)
 
@@ -160,60 +195,69 @@ algae_data <- algae_data %>% filter(positional_accuracy<46 &
                 quality_grade == "research")
 
 class(algae_data) # check class
+```
 
-# Make the dataframe a spatial object of class = "sf"
+I convert the data frame into a spatial object. I define the CRS to be to be Geographic WGS84 using the EPSG code.
+
+```{r}
+# Make the data frame a spatial object of class = "sf"
 algae_data <- st_as_sf(algae_data, coords = c("longitude", "latitude"), crs = 4326)
 
 class(algae_data) # confirm new classes
 
-# Note the new "geometry" column
+# See the new "geometry" column
 names(algae_data)
 ```
 
+I created my first plot that includes the 3 species occurrences within the MPAs.
+
 ```{r}
-# ZU SEHR REINGEZOOMT, NICHT SELBER EXTENT WIE MPA MAP
-# Plot 3 seaweed species
-ggplot() + geom_sf(data=algae_data)
-
 # Plot 3 seaweed species with MPAs and legend
-
 ggplot() +
-  # MPAs with different colors & legend
   geom_sf(data = mpa_cape, aes(fill = CUR_NME), color = "black", alpha = 0.5) +
-  
-  # Species occurrence points with legend
   geom_sf(data = algae_data, aes(color = scientific_name), size = 2) +
-  
-  # Color scales for MPAs and species
-  scale_fill_viridis_d(name = "Marine Protected Areas") +  # MPA colors
-  scale_color_manual(name = "Seaweed Species", values = c("red", "green", "blue", "purple")) +  # Species colors
-  
-  # Keep the correct map extent
+  scale_fill_viridis_d(name = "Marine Protected Areas") +  
+  scale_color_manual(name = "Seaweed Species", values = c("red", "green", "blue", "purple")) + 
   coord_sf(xlim = c(18.0, 19.2), ylim = c(-34.6, -33.7)) +
-  
-  # Title and theme
   ggtitle("MPAs and Algae Observations") +
   theme_minimal() +
-  theme(legend.position = "right")  # Move legend to side
+  theme(legend.position = "right")  
 ```
 
+Figure 7: ...
+
+I created an interactive map with a default OSM base map that allows me to zoom 
+into specific areas and has popup labels with URL links to each observation
+on iNaturalist.
+
 ```{r}
-# Make interactive map
+# Make an interactive map
 leaflet() %>%
-  # Add default OpenStreetMap map tiles
   addTiles(group = "Default") %>%  
-  # Add our points
   addCircleMarkers(data = algae_data,
                    group = "Seaweeds",
                    radius = 3, 
                    color = "green") 
+```
 
-# Add popup labels to inspect data
+Figure 8: ...
+
+I am adding popup labels that show the Feature ID, the particular species' 
+scientific name, and whether they are cultivated.
+
+```{r}
+# Add popup labels 
 mapview(algae_data, 
         popup = 
           popupTable(algae_data,
             zcol = c("scientific_name", "captive_cultivated", "url")))
+```
 
+Figure 9: ...
+
+Now I am adding URL links to each observation on iNaturalist. 
+
+```{r}
 # Make URLs links
 l_algae_data <- algae_data %>%
   mutate(click_url = paste("<b><a href='", url, "'>Link to iNat observation</a></b>"))
@@ -224,11 +268,13 @@ mapview(algae_data,
             zcol = c("scientific_name", "captive_cultivated", "click_url")))
 ```
 
+I want to now intersect the MPA and species data sets. The CRS of the two do not match, so I first transform one data set to match the other and then intersect.
+
 ```{r}
-# CRS do not match, so transform one dataset to match the other
+# Transform one data set to match the other
 algae_data <- st_transform(algae_data, st_crs(mpa_cape))
 
-# Confirm CRS of both datasets
+# Confirm CRS of both data sets
 st_crs(algae_data)
 st_crs(mpa_cape)
 
@@ -241,7 +287,11 @@ algae_data <- st_intersection(algae_data, mpa_cape) # intersect
 dim(algae_data) # after
 ```
 
+Now I create a plot of the intersected data with an OSM base map. The species
+records from different MPAs are indicated in different colours.
+
 ```{r}
+# WEGLASSEN?
 # Plot intersected dataset
 ggplot() + 
   annotation_map_tile(type = "osm", progress = "none") + 
@@ -252,19 +302,27 @@ pal <- wes_palette("Darjeeling1", 7, type = "continuous")
 
 ggplot() + 
   annotation_map_tile(type = "osm", progress = "none") + 
-  geom_sf(data=algae_data, aes(col = CUR_NME)) +
-  scale_colour_manual(values = pal)
+  geom_sf(data = algae_data, aes(col = CUR_NME)) +
+  scale_colour_manual(name = "Marine Protected Areas", values = pal)
+```
 
-# Looks like almost all of them are in the Table Mountain National Park Marine
-# Protected Area...
+Figure 10: ...
+
+It looks like almost all species records are in the Table Mountain National Park Marine Protected Area. Let us confirm this.
+
+```{r}
 algae_data %>% group_by(CUR_NME) %>% summarise(n())
+```
 
-# That is correct. Note the numbers in column n(). But I can’t see where the 
-# Betty's Bay (BB) MPA and Robben Island (RI) MPA records are, so let’s label these ' # with text # using geom_sf_label().
+When we have a look at the numbers in column n(), this proves to be correct.
+It is difficult to see the few records within the Betty's Bay (BB) MPA and Robben Island (RI) MPA are on the map. I am therefore labelling these two.
+
+```{r}
+# Find BB MPA localities
 bb <- algae_data %>% filter(CUR_NME %in% c("Betty's Bay Marine Protected Area")) 
-# find BB MPA localities
 
-ri <- algae_data %>% filter(CUR_NME %in% c("Robben Island Marine Protected Area")) # find RI MPA localities
+# Find RI MPA localities
+ri <- algae_data %>% filter(CUR_NME %in% c("Robben Island Marine Protected Area"))  
 
 # Label Betty's Bay (BB) MPA and Robben Island (RI) MPA 
 ggplot() + 
@@ -276,5 +334,7 @@ ggplot() +
   geom_sf_label(data = ri %>% filter(CUR_NME == "Robben Island Marine Protected Area"), aes(label = "RI")) +
   theme_minimal()
 ```
+
+Figure 11: ...
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
