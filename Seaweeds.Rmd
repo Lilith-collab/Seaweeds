@@ -9,7 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## 
+## Establishing the distribution of three agar-producing seaweed species in relation to existing Marine Protected Areas (MPAs) in South Africa
 
 Firstly, we install and load all necessary packages
 
@@ -336,5 +336,16 @@ ggplot() +
 ```
 
 Figure 11: ...
+
+
+
+Data sources
+
+[SA Marine Protected Area Zonations Data - Department of Forestry, Fisheries
+and the Environment](https://environmentza-my.sharepoint.com/personal/gisdocs_environment_gov_za/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fgisdocs%5Fenvironment%5Fgov%5Fza%2FDocuments%2FPACA%2FSAMPAZ%5FOR%5F2024%5FQ3%2Eshp%2Ezip&parent=%2Fpersonal%2Fgisdocs%5Fenvironment%5Fgov%5Fza%2FDocuments%2FPACA&ga=1)
+
+Species Occurrence Data - iNaturalist
+
+
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
