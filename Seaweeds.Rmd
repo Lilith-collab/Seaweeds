@@ -168,5 +168,33 @@ class(algae_data) # confirm new classes
 names(algae_data)
 ```
 
+```{r}
+# ZU SEHR REINGEZOOMT, NICHT SELBER EXTENT WIE MPA MAP
+# Plot 3 seaweed species
+ggplot() + geom_sf(data=algae_data)
+
+# Plot 3 seaweed species with MPAs and legend
+
+ggplot() +
+  # MPAs with different colors & legend
+  geom_sf(data = mpa_cape, aes(fill = CUR_NME), color = "black", alpha = 0.5) +
+  
+  # Species occurrence points with legend
+  geom_sf(data = algae_data, aes(color = scientific_name), size = 2) +
+  
+  # Color scales for MPAs and species
+  scale_fill_viridis_d(name = "Marine Protected Areas") +  # MPA colors
+  scale_color_manual(name = "Seaweed Species", values = c("red", "green", "blue", "purple")) +  # Species colors
+  
+  # Keep the correct map extent
+  coord_sf(xlim = c(18.0, 19.2), ylim = c(-34.6, -33.7)) +
+  
+  # Title and theme
+  ggtitle("MPAs and Algae Observations") +
+  theme_minimal() +
+  theme(legend.position = "right")  # Move legend to side
+```
+
+
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
