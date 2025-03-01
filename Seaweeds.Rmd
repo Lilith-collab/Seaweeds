@@ -240,4 +240,40 @@ algae_data <- st_intersection(algae_data, mpa_cape) # intersect
 dim(algae_data) # after
 ```
 
+```{r}
+# Plot intersected dataset
+ggplot() + 
+  annotation_map_tile(type = "osm", progress = "none") + 
+  geom_sf(data=algae_data)
+
+# Colour points
+pal <- wes_palette("Darjeeling1", 7, type = "continuous")
+
+ggplot() + 
+  annotation_map_tile(type = "osm", progress = "none") + 
+  geom_sf(data=algae_data, aes(col = CUR_NME)) +
+  scale_colour_manual(values = pal)
+
+# Looks like almost all of them are in the Table Mountain National Park Marine
+# Protected Area...
+algae_data %>% group_by(CUR_NME) %>% summarise(n())
+
+# That is correct. Note the numbers in column n(). But I can’t see where the 
+# Betty's Bay (BB) MPA and Robben Island (RI) MPA records are, so let’s label these ' # with text # using geom_sf_label().
+bb <- algae_data %>% filter(CUR_NME %in% c("Betty's Bay Marine Protected Area")) 
+# find BB MPA localities
+
+ri <- algae_data %>% filter(CUR_NME %in% c("Robben Island Marine Protected Area")) # find RI MPA localities
+
+# Label Betty's Bay (BB) MPA and Robben Island (RI) MPA 
+ggplot() + 
+  annotation_map_tile(type = "osm", progress = "none") + 
+  geom_sf(data = algae_data, aes(col = CUR_NME)) +
+  scale_colour_manual(values = pal) +
+  labs(color = "Marine Protected Areas") +  # Rename the legend title here
+  geom_sf_label(data = bb %>% filter(CUR_NME == "Betty's Bay Marine Protected Area"), aes(label = "BB")) +
+  geom_sf_label(data = ri %>% filter(CUR_NME == "Robben Island Marine Protected Area"), aes(label = "RI")) +
+  theme_minimal()
+```
+
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
