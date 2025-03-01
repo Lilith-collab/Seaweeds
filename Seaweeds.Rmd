@@ -1,0 +1,45 @@
+---
+title: "Seaweeds"
+author: "Lilith Diener"
+date: "2025-03-01"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 
+
+Firstly, we install and load all necessary packages
+
+```{r}
+
+# Install packages
+install.packages("ggmap")
+install.packages("ggmap", dependencies = TRUE)
+install.packages("ggspatial")
+install.packages("osmdata")
+install.packages("wesanderson") 
+
+
+# Load packages
+library(sf)
+library(tidyverse)
+library(ggplot2)
+library(rinat)
+library(rosm)
+library(ggspatial)
+library(ggmap)
+library(osmdata)
+library(leaflet)
+library(htmltools)
+library(mapview)
+library(leafpop)
+library(wesanderson)
+library(dplyr)
+```
+
+
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
