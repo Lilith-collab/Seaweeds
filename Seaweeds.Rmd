@@ -16,11 +16,11 @@ Firstly, we install and load all necessary packages
 ```{r}
 
 # Install packages
-install.packages("ggmap")
-install.packages("ggmap", dependencies = TRUE)
-install.packages("ggspatial")
-install.packages("osmdata")
-install.packages("wesanderson") 
+# install.packages("ggmap")
+# install.packages("ggmap", dependencies = TRUE)
+# install.packages("ggspatial")
+# install.packages("osmdata")
+# install.packages("wesanderson") 
 
 
 # Load packages
