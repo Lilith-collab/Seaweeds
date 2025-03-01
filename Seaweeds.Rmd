@@ -117,4 +117,56 @@ mpa_cape %>% group_by(CUR_NME) %>%
   ggplot() + geom_sf(aes(fill = CUR_NME))
 ```
 
+```{r}
+# Call species occurrence data from iNaturalist
+
+# Ecklonia maxima
+em <- get_inat_obs(taxon_name = "Ecklonia maxima",
+                   bounds = c(-34.6, 18.0, -33.7, 19.2),
+                   maxresults = 1000)
+
+# View the first few rows of data
+head(em)
+
+# Gelidium pristoides
+gpr <- get_inat_obs(taxon_name = "Gelidium pristoides",
+                   bounds = c(-34.6, 18.0, -33.7, 19.2),
+                   maxresults = 1000)
+
+#View the first few rows of data
+head(gpr)
+
+# Laminaria pallida
+lp <- get_inat_obs(taxon_name = "Laminaria pallida",
+                   bounds = c(-34.6, 18.0, -33.7, 19.2),
+                   maxresults = 1000)
+
+# View the first few rows of data
+head(lp)
+
+# Merge the 3 datasets into a single data frame 
+algae_data <- rbind(gpr, em, lp)
+
+# Check structure
+str(algae_data)
+
+# Filter returned observations by a range of column attribute criteria
+algae_data <- algae_data %>% filter(positional_accuracy<46 & 
+                latitude<0 &
+                !is.na(latitude) &
+                captive_cultivated == "false" &
+                quality_grade == "research")
+
+class(algae_data) # check class
+
+# Make the dataframe a spatial object of class = "sf"
+algae_data <- st_as_sf(algae_data, coords = c("longitude", "latitude"), crs = 4326)
+
+class(algae_data) # confirm new classes
+
+# Note the new "geometry" column
+names(algae_data)
+```
+
+
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
