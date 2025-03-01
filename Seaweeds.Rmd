@@ -195,6 +195,31 @@ ggplot() +
   theme(legend.position = "right")  # Move legend to side
 ```
 
+```{r}
+# Make interactive map
+leaflet() %>%
+  # Add default OpenStreetMap map tiles
+  addTiles(group = "Default") %>%  
+  # Add our points
+  addCircleMarkers(data = algae_data,
+                   group = "Seaweeds",
+                   radius = 3, 
+                   color = "green") 
 
+# Add popup labels to inspect data
+mapview(algae_data, 
+        popup = 
+          popupTable(algae_data,
+            zcol = c("scientific_name", "captive_cultivated", "url")))
+
+# Make URLs links
+l_algae_data <- algae_data %>%
+  mutate(click_url = paste("<b><a href='", url, "'>Link to iNat observation</a></b>"))
+
+mapview(algae_data, 
+        popup = 
+          popupTable(l_algae_data,
+            zcol = c("scientific_name", "captive_cultivated", "click_url")))
+```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
