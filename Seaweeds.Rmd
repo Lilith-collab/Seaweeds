@@ -67,6 +67,8 @@ plot(mpa)
 ggplot() + geom_sf(data=mpa, aes(fill = `CUR_NME`))
 ```
 
+
+HIERVON EIN PAAR HÄSSLICHE PLOTS WEGLASSEN
 ```{r}
  # Define bounding box for the Cape Peninsula
 xmin <- 18.0   # Extend west to include Robben Island
@@ -223,16 +225,15 @@ mapview(algae_data,
 ```
 
 ```{r}
-# Intersect species occurrences and MPAs
-mpa_em_lp_gpr <- st_intersection(algae_data, mpa_cape)
+# CRS do not match, so transform one dataset to match the other
+algae_data <- st_transform(algae_data, st_crs(mpa_cape))
 
 # Confirm CRS of both datasets
 st_crs(algae_data)
 st_crs(mpa_cape)
 
-# CRS do not match, so transform one dataset to match the other
-algae_data <- st_transform(algae_data, st_crs(mpa_cape))
-
+# Intersect species occurrences and MPAs
+mpa_em_lp_gpr <- st_intersection(algae_data, mpa_cape)
 
 # Check dimensions before and after intersection
 dim(algae_data) # before
