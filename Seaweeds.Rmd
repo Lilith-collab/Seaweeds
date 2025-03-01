@@ -40,6 +40,20 @@ library(wesanderson)
 library(dplyr)
 ```
 
+```{r}
+# Read in the Marine Protected Areas dataset
+mpa <- st_read("C:\\Users\\Win10\\Documents\\GIT\\Gracilaria\\Gracilaria\\data\\SAMPAZ_OR_2024_Q3.shp")
+ 
+# Check the CRS
+st_crs(mpa)
 
+class(mpa)
+head (mpa)
+
+# Write data with sf
+ st_write(mpa, "C:\\Users\\Win10\\Documents\\GIT\\Gracilaria\\Gracilaria\\data\\SAMPAZ_OR_2024_Q3_duplicate.shp", append = FALSE)
+ 
+file.exists("C:\\Users\\Win10\\Documents\\GIT\\Gracilaria\\Gracilaria\\data\\SAMPAZ_OR_2024_Q3_duplicate.shp")
+```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
