@@ -56,4 +56,15 @@ head (mpa)
 file.exists("C:\\Users\\Win10\\Documents\\GIT\\Gracilaria\\Gracilaria\\data\\SAMPAZ_OR_2024_Q3_duplicate.shp")
 ```
 
+```{r}
+# Plot all (all columns, all of SA)
+plot(mpa)
+
+# Plot only column 2 from attribute table, all of SA
+ plot(mpa[2])
+
+# Plot using tidyverse
+ggplot() + geom_sf(data=mpa, aes(fill = `CUR_NME`))
+```
+
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
