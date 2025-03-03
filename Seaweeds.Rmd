@@ -9,11 +9,12 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-In the following, I describe my workflow step-by-step. 
+To assess whether new Marine Protected Areas (MPAs) should be established or 
+existing ones expanded for the conservation of South Africa's main agar-producing seaweed species, I outline my step-by-step workflow below.
+
 Firstly, I install and load all necessary packages.
 
 ```{r}
-
 # Install packages
 # install.packages("ggmap")
 # install.packages("ggmap", dependencies = TRUE)
@@ -58,16 +59,16 @@ head (mpa)
 file.exists("C:\\Users\\Win10\\Documents\\GIT\\Gracilaria\\Gracilaria\\data\\SAMPAZ_OR_2024_Q3_duplicate.shp")
 ```
 
-Here, I generate some plots to get an overview of the MPA data, I reduce it to
-show only the relevant column (MPA names) and create an additional plot using tidyverse, which also creates a legend. In this last plot the map is squashed, 
-but I will fix that soon. 
+Here, I generate some plots to get an overview of the MPA data, I then reduce it
+to show only the relevant column (MPA names) and create an additional plot using tidyverse, which also creates a legend. In this last plot the map is squashed, 
+but I will fix this in the next step. 
 
 ```{r}
 # Plot all (all columns, all of SA)
 plot(mpa)
 ```
 
-Figure 1: Plots of the properties of each attribute in the attribute table.
+Figure 1: Plots of the properties of each attribute in the MPA attribute table.
 
 ```{r}
 # Plot only column 2 from attribute table, all of SA
@@ -82,6 +83,7 @@ ggplot() + geom_sf(data=mpa, aes(fill = `CUR_NME`))
 ```
 
 Figure 3: Map of South African Marine Protected Areas with legend.
+
 
 To avoid squashing the map, I crop it to the section I want to show. I set the 
 bounding box to show the Cape Peninsula, and extend west and north to include 
@@ -108,9 +110,9 @@ mpa_cape <- st_crop(mpa, cape_bbox)
 # Plot only cropped section of Cape Peninsula
 plot(st_geometry(mpa_cape), col = 'lightblue', main = "Marine Protected Areas")
 ```
-
 Figure 4: Map of South African MPAs in the Cape Peninsula region, Robben Island
 and False Bay. 
+
 
 I create a plot using ggplot2 showing the four MPAs included in my cropped 
 section in different colours. For this to work, I first convert my MPA data
@@ -128,9 +130,9 @@ ggplot() +
   theme_minimal() +
   theme(legend.position = "right")  
 ```
-
 Figure 5: Map of South African MPAs in the Cape Peninsula region, Robben Island
 and False Bay, MPAs are highlighted in different colours. 
+
 
 There are some adjacent polygons that belong to the same MPA. Below I edit
 the plot to not show any unwanted boundaries. 
@@ -142,9 +144,9 @@ mpa_cape %>% group_by(CUR_NME) %>%
   ggplot() + geom_sf(aes(fill = CUR_NME)) +
   scale_fill_discrete(name = "Marine Protected Areas") 
 ```
-
 Figure 6: Map of South African MPAs in the Cape Peninsula region, Robben Island
 and False Bay, unwanted boundaries are removed.
+
 
 Now it is time to add my species occurrence data from iNaturalist.
 I am using three species: the kelps *Ecklonia maxima* and *Laminaria pallida*,
@@ -212,7 +214,7 @@ class(algae_data) # confirm new classes
 names(algae_data)
 ```
 
-I create my first plot that includes the 3 species occurrences within the MPAs.
+I create the first plot that includes the 3 species occurrences within the MPAs.
 
 ```{r}
 # Plot 3 seaweed species with MPAs and legend
@@ -220,14 +222,15 @@ ggplot() +
   geom_sf(data = mpa_cape, aes(fill = CUR_NME), color = "black", alpha = 0.5) +
   geom_sf(data = algae_data, aes(color = scientific_name), size = 2) +
   scale_fill_viridis_d(name = "Marine Protected Areas") +  
-  scale_color_manual(name = "Seaweed Species", values = c("red", "green", "blue", "purple")) + 
+  scale_color_manual(name = "Seaweed Species", values = c("red", "green", "blue", "yellow")) + 
   coord_sf(xlim = c(18.0, 19.2), ylim = c(-34.6, -33.7)) +
   ggtitle("MPAs and Algae Observations") +
   theme_minimal() +
   theme(legend.position = "right")  
 ```
+Figure 7: Observations of three seaweed species within existing MPAs. Species and
+MPAs are highlighted in different colours.
 
-Figure 7: Observations of three seaweed species within existing MPAs. 
 
 I create an interactive map with a default OSM base map that allows me to zoom 
 into specific areas and has popup labels with URL links to each observation
@@ -246,8 +249,8 @@ leaflet() %>%
 Figure 8: Interactive map showing seaweed observations within the broader 
 Cape region. 
 
-I am adding popup labels that show the Feature ID, the particular species' 
-scientific name, and whether they are cultivated.
+I am adding popup labels that show the Feature ID, the species' scientific name, 
+and whether they are cultivated.
 
 ```{r}
 # Add popup labels 
@@ -307,10 +310,10 @@ ggplot() +
   geom_sf(data = algae_data, aes(col = CUR_NME)) +
   scale_colour_manual(name = "Marine Protected Areas", values = pal)
 ```
-
 Figure 11: Map of seaweed species occurrences within the MPAs and with an 
 Open street map base map. Species records from different MPAs are indicated in
 different colours. 
+
 
 It looks like almost all species records are in the Table Mountain National Park Marine Protected Area. Let us confirm this.
 
@@ -320,7 +323,7 @@ algae_data %>% group_by(CUR_NME) %>% summarise(n())
 
 When we have a look at the numbers in column n(), this proves to be correct.
 It is difficult to see where the few records within the Betty's Bay (BB) MPA and Robben Island (RI) MPA are on the map. I am therefore locating and then 
-labeling these two.
+labeling observations in these two.
 
 ```{r}
 # Find BB MPA localities
@@ -339,15 +342,16 @@ ggplot() +
   geom_sf_label(data = ri %>% filter(CUR_NME == "Robben Island Marine Protected Area"), aes(label = "RI")) +
   theme_minimal()
 ```
-
-Figure 12: Map of seaweed species occurrences within existing South African
+Figure 12: Map of three seaweed species occurrences within existing South African
 Marine Protected Areas, records from Betty's Bay and Robben Island MPAs are 
 labelled. 
 
-Looking at the distribution of the three agar-producing seaweed species, it is 
-clear that they all occur within established Marine Protected Areas in the 
-study region. The creation of new MPAs or expansion of existing ones does not 
-seem to be necessary. 
+
+The distribution analysis of the three agar-producing seaweed species indicates 
+that many records fall outside established Marine Protected Areas. To support 
+the agar industry, expanding the Robben Island MPA eastward and extending the 
+Betty's Bay MPA should be considered.
+
 
 
 Data sources
