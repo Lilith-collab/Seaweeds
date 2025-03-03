@@ -1,5 +1,5 @@
 ---
-title: "Seaweeds"
+title: "Establishing the distribution of three agar-producing seaweed species in relation to existing Marine Protected Areas (MPAs) in South Africa"
 author: "Lilith Diener"
 date: "2025-03-01"
 output: html_document
@@ -8,8 +8,6 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-
-## Establishing the distribution of three agar-producing seaweed species in relation to existing Marine Protected Areas (MPAs) in South Africa
 
 In the following, I describe my workflow step-by-step. 
 Firstly, I install and load all necessary packages.
