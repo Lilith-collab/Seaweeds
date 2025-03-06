@@ -110,6 +110,7 @@ mpa_cape <- st_crop(mpa, cape_bbox)
 # Plot only cropped section of Cape Peninsula
 plot(st_geometry(mpa_cape), col = 'lightblue', main = "Marine Protected Areas")
 ```
+
 Figure 4: Map of South African MPAs in the Cape Peninsula region, Robben Island
 and False Bay. 
 
@@ -130,6 +131,7 @@ ggplot() +
   theme_minimal() +
   theme(legend.position = "right")  
 ```
+
 Figure 5: Map of South African MPAs in the Cape Peninsula region, Robben Island
 and False Bay, MPAs are highlighted in different colours. 
 
@@ -144,6 +146,7 @@ mpa_cape %>% group_by(CUR_NME) %>%
   ggplot() + geom_sf(aes(fill = CUR_NME)) +
   scale_fill_discrete(name = "Marine Protected Areas") 
 ```
+
 Figure 6: Map of South African MPAs in the Cape Peninsula region, Robben Island
 and False Bay, unwanted boundaries are removed.
 
@@ -228,6 +231,7 @@ ggplot() +
   theme_minimal() +
   theme(legend.position = "right")  
 ```
+
 Figure 7: Observations of three seaweed species within existing MPAs. Species and
 MPAs are highlighted in different colours.
 
@@ -310,6 +314,7 @@ ggplot() +
   geom_sf(data = algae_data, aes(col = CUR_NME)) +
   scale_colour_manual(name = "Marine Protected Areas", values = pal)
 ```
+
 Figure 11: Map of seaweed species occurrences within the MPAs and with an 
 Open street map base map. Species records from different MPAs are indicated in
 different colours. 
@@ -342,6 +347,7 @@ ggplot() +
   geom_sf_label(data = ri %>% filter(CUR_NME == "Robben Island Marine Protected Area"), aes(label = "RI")) +
   theme_minimal()
 ```
+
 Figure 12: Map of three seaweed species occurrences within existing South African
 Marine Protected Areas, records from Betty's Bay and Robben Island MPAs are 
 labelled. 
