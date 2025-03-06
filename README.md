@@ -8,4 +8,4 @@ The species occurrence data comes from [iNaturalist](https://www.inaturalist.org
 https://htmlview.glitch.me/?https://github.com/Lilith-collab/Seaweeds/blob/main/Seaweeds.html
 
 
-https://htmlview.glitch.me/?https://github.com/Lilith-collab/Seaweeds/blob/main/Seaweeds.html
+
